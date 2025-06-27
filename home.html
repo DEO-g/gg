@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+        }
+
+        /* Header */
+        .header {
+            background: #1877f2;
+            padding: 0 16px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .facebook-logo {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 16px;
+        }
+
+        .search-box {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: white;
+            width: 240px;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+            flex: 1;
+            max-width: 680px;
+            margin-left: 10px;
+        }
+
+        .nav-icon {
+            padding: 10px 40px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin: 0 2px;
+            color: white;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .nav-icon:hover {
+            background-color: rgba(255,255,255,0.1);
+            opacity: 1;
+        }
+
+        .nav-icon.active {
+            border-bottom: 3px solid white;
+            padding-bottom: 7px;
+            opacity: 1;
+        }
+
+        .nav-icon svg {
+            fill: currentColor;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .header-icon:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .header-icon.profile {
+            background: rgba(255,255,255,0.9);
+            color: #1877f2;
+            font-weight: bold;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #e41e3f;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            width: 360px;
+            margin-top: 8px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            margin-top: 56px;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Left Sidebar */
+        .left-sidebar {
+            width: 360px;
+            background: white;
+            padding: 20px;
+            position: fixed;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1877f2;
+            border-bottom: 2px solid #e4e6ea;
+            padding-bottom: 8px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background-color: #f0f2f5;
+        }
+
+        .sidebar-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            background: #1877f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 360px;
+            padding: 20px;
+            flex: 1;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        /* Post Creation */
+        .create-post {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .create-post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1877f2;
+            margin-right: 12px;
+        }
+
+        .post-input {
+            flex: 1;
+            border: none;
+            background: #f0f2f5;
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-size: 16px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .post-action:hover {
+            background-color: #f0f2f5;
+        }
+
+        .post-action-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        /* Posts */
+        .post {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .post-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1877f2;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .post-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #65676b;
+        }
+
+        .post-content {
+            padding: 0 16px 16px;
+        }
+
+        .post-text {
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .photo-upload-area {
+            border-radius: 8px;
+            text-align: center;
+            color: #1877f2;
+            background: #f8f9ff;
+            margin-bottom: 12px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .photo-upload-area:hover {
+            background: #f0f2ff;
+        }
+
+        /* Reactions */
+        .post-stats {
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #65676b;
+        }
+
+        .likes-count {
+            display: flex;
+            align-items: center;
+        }
+
+        .reaction-icons {
+            display: flex;
+            margin-right: 8px;
+        }
+
+        .reaction-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-left: -4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 2px solid white;
+        }
+
+        .like-icon { background: #1877f2; color: white; }
+        .love-icon { background: #e91e63; color: white; }
+        .haha-icon { background: #ffb347; color: white; }
+
+        /* Reaction Picker */
+        .reaction-picker {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 25px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        .reaction-picker.show {
+            display: flex;
+        }
+
+        .reaction-option {
+            width: 40px;
+            height: 40px;
+            margin: 0 4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .reaction-option:hover {
+            transform: scale(1.2);
+        }
+
+        /* Comments */
+        .comments-section {
+            padding: 0 16px 16px;
+            border-top: 1px solid #e4e6ea;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .comment {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1877f2;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .comment-content {
+            background: #f0f2f5;
+            border-radius: 16px;
+            padding: 8px 12px;
+            flex: 1;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+        }
+
+        .comment-input-area {
+            display: flex;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .comment-input {
+            flex: 1;
+            border: none;
+            background: #f0f2f5;
+            border-radius: 20px;
+            padding: 8px 16px;
+            margin-left: 8px;
+            font-size: 14px;
+        }
+
+        .send-button {
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 18px;
+            padding: 8px 16px;
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .send-button:hover {
+            background: #166fe5;
+        }
+        
+        /* Style pour les compteurs */
+        .counter {
+            display: none;
+            margin-left: 4px;
+            font-size: 12px;
+        }
+        
+        .counter.show {
+            display: inline-block;
+        }
+        
+        /* Menu des réactions */
+        .reactions-menu {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: white;
+            border-radius: 25px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .reactions-menu.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="facebook-logo">facebook</div>
+            <input type="text" class="search-box" placeholder="Rechercher sur Facebook">
+        </div>
+        
+        <!-- Menu central avec icônes -->
+        <div class="header-center">
+            <a href="index.html" class="nav-icon" title="Accueil">
+                <svg viewBox="0 0 28 28" height="28" width="28"><path d="M25.825 12.29L14.315 2.32a1.85 1.85 0 00-2.64 0L.175 12.29a.6.6 0 00-.07.8.58.58 0 00.75.2l1.06-.65V25.2A2.8 2.8 0 004.825 28H10.5V18.2a1.4 1.4 0 011.4-1.4h4.2a1.4 1.4 0 011.4 1.4V28h5.675A2.8 2.8 0 0026 25.2V12.64l1.06.65a.58.58 0 00.75-.2.6.6 0 00-.07-.8z"></path></svg>
+            </a>
+            <a href="friends_suggestions.html" class="nav-icon active" title="Amis">
+                <svg viewBox="0 0 28 28" height="28" width="28"><path d="M10.5 4.5a3 3 0 100 6 3 3 0 000-6zm-6 0a3 3 0 100 6 3 3 0 000-6zm12 0a3 3 0 100 6 3 3 0 000-6zm3.75 6.75h6a.75.75 0 000-1.5h-6a.75.75 0 000 1.5zm-15.75 0h6a.75.75 0 000-1.5h-6a.75.75 0 000 1.5zm12 0h6a.75.75 0 000-1.5h-6a.75.75 0 000 1.5zM1.5 19.5A4.5 4.5 0 016 15h9a4.5 4.5 0 014.5 4.5v3a1.5 1.5 0 01-1.5 1.5H3a1.5 1.5 0 01-1.5-1.5zm3-15a3 3 0 100 6 3 3 0 000-6z"></path></svg>
+            </a>
+            <div class="nav-icon" title="Watch">
+                <svg viewBox="0 0 28 28" height="28" width="28">
+                    <path d="M8.75 25.25V8.75h17.5v16.5zm0-17.5v-1.75h17.5V7.7zm17.5 18.9a1.4 1.4 0 001.4-1.4V7.7h1.75v16.5a3.15 3.15 0 01-3.15 3.15H7.875A3.15 3.15 0 014.725 24.2V7.7H6.5v15.05a1.4 1.4 0 001.4 1.4h17.5zM2.625 3.5h21.875V2.625a1.4 1.4 0 00-1.4-1.4H4.025a1.4 1.4 0 00-1.4 1.4zm4.9 3.5H4.9v15.05h2.625z" fill="currentColor"></path>
+                </svg>
+            </div>
+            <div class="nav-icon" title="Marketplace">
+                <svg viewBox="0 0 28 28" height="28" width="28">
+                    <path d="M18.2 16.8a1.4 1.4 0 100-2.8 1.4 1.4 0 000 2.8zm-8.4 0a1.4 1.4 0 100-2.8 1.4 1.4 0 000 2.8z" fill="currentColor"></path>
+                    <path d="M24.5 5.6H3.5A1.4 1.4 0 002.1 7v14a1.4 1.4 0 001.4 1.4h21a1.4 1.4 0 001.4-1.4V7a1.4 1.4 0 00-1.4-1.4zm-21 14V7h21v12.6h-21z" fill="currentColor"></path>
+                </svg>
+            </div>
+            <div class="nav-icon" title="Groupes">
+                <svg viewBox="0 0 28 28" height="28" width="28">
+                    <path d="M5.6 12.6a2.8 2.8 0 100-5.6 2.8 2.8 0 000 5.6zm16.8 0a2.8 2.8 0 100-5.6 2.8 2.8 0 000 5.6zm1.4 1.4h-.7a4.9 4.9 0 01-3.5 1.4 4.9 4.9 0 01-3.5-1.4h-2.1a4.9 4.9 0 01-3.5 1.4 4.9 4.9 0 01-3.5-1.4h-.7A2.8 2.8 0 002.8 16.8v5.6a1.4 1.4 0 001.4 1.4h19.6a1.4 1.4 0 001.4-1.4v-5.6a2.8 2.8 0 00-2.8-2.8zM14 12.6a2.8 2.8 0 100-5.6 2.8 2.8 0 000 5.6zm1.4 1.4h-2.1a4.9 4.9 0 01-3.5 1.4 4.9 4.9 0 01-3.5-1.4h-.7A2.8 2.8 0 002.8 16.8v5.6a1.4 1.4 0 001.4 1.4h19.6a1.4 1.4 0 001.4-1.4v-5.6a2.8 2.8 0 00-2.8-2.8h-.7a4.9 4.9 0 01-3.5 1.4 4.9 4.9 0 01-3.5-1.4z" fill="currentColor"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="header-icon" title="Menu">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 10c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"></path>
+                </svg>
+            </div>
+            <div class="header-icon" title="Messenger">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 3.75c-4.55 0-8.25 3.22-8.25 7.2 0 2.34 1.23 4.4 3.15 5.77.16.12.26.32.26.53v1.75c0 .2.22.32.4.2l1.9-1.3c.33-.22.73-.34 1.14-.34h.4c2.9 0 5.25-2.1 5.25-4.7 0-3.98-3.7-7.2-8.25-7.2zM12 0C5.37 0 0 4.8 0 10.8c0 3.08 1.64 5.86 4.28 7.7V24l4.25-2.9c1.1.3 2.28.5 3.47.5 6.63 0 12-4.8 12-10.8C24 4.8 18.63 0 12 0z" fill="currentColor"></path>
+                </svg>
+                <div class="notification-badge">3</div>
+            </div>
+            <div class="header-icon" title="Notifications">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 2c1.1 0 2 .9 2 2v.29c2.92.88 5 3.61 5 6.71v5.29l2 2v1H3v-1l2-2V11c0-3.1 2.08-5.83 5-6.71V4c0-1.1.9-2 2-2zm0 18c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2z" fill="currentColor"></path>
+                </svg>
+                <div class="notification-badge">5</div>
+            </div>
+            <div class="header-icon profile" title="Profil" onclick="toggleProfileDropdown()">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="currentColor"></path>
+                </svg>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <!-- [Contenu du dropdown inchangé] -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <!-- Meta IA Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">🤖 Meta IA</div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">🎯</div>
+                    <span>Assistant IA</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">💡</div>
+                    <span>Suggestions</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">🔍</div>
+                    <span>Recherche intelligente</span>
+                </div>
+            </div>
+
+            <!-- Navigation Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">📱 Navigation</div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">🏠</div>
+                    <span>Accueil</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">👥</div>
+                    <span>Amis</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">📺</div>
+                    <span>Watch</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">🛒</div>
+                    <span>Marketplace</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">👥</div>
+                    <span>Groupes</span>
+                </div>
+            </div>
+
+            <!-- Account Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">⚙️ Compte</div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">👋</div>
+                    <span>Bienvenue</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">📝</div>
+                    <span>Enregistrement</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">💭</div>
+                    <span>Souvenirs</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">🔒</div>
+                    <span>Confidentialité</span>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">⚙️</div>
+                    <span>Paramètres</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Create Post -->
+            <div class="create-post">
+                <div class="create-post-header">
+                    <div class="profile-pic"></div>
+                    <input type="text" class="post-input" placeholder="Que voulez-vous dire ?">
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">
+                        <span class="post-action-icon">📹</span>
+                        <span>Vidéo en direct</span>
+                    </div>
+                    <div class="post-action" onclick="uploadPhoto()">
+                        <span class="post-action-icon">📸</span>
+                        <span>Photo/vidéo</span>
+                    </div>
+                    <div class="post-action">
+                        <span class="post-action-icon">😊</span>
+                        <span>Humeur/activité</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posts -->
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-avatar">M</div>
+                    <div class="post-info">
+                        <h3>Marie Dubois</h3>
+                        <div class="post-time">Il y a 2 heures</div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <div class="post-text">Belle journée  ! 🌞</div>
+                    <div class="photo-upload-area" onclick="uploadPostPhoto(this)">
+                        <img style="max-width:100%;" src="../../assets/image/FB_IMG_1734683037402.jpg" alt="Un garçon chante joyeusement à son chat assis devant lui">
+                    </div>
+                </div>
+                <div class="post-stats">
+                    <div class="likes-count">
+                        <div class="reaction-icons" id="reactionContainer1">
+                            <div class="reaction-icon like-icon" 
+                                 onclick="addReaction('like', 'reactionContainer1')" 
+                                 oncontextmenu="showReactions(event, this)">👍</div>
+                            <div class="counter like-counter" id="likeCounter1">0</div>
+                            
+                            <div class="reaction-icon love-icon" 
+                                 onclick="addReaction('love', 'reactionContainer1')" 
+                                 style="display: none;">❤️</div>
+                            <div class="counter love-counter" id="loveCounter1">0</div>
+                            
+                            <div class="reaction-icon haha-icon" 
+                                 onclick="addReaction('haha', 'reactionContainer1')" 
+                                 style="display: none;">😄</div>
+                            <div class="counter haha-counter" id="hahaCounter1">0</div>
+                            
+                            <div class="reactions-menu" id="reactionsMenu1">
+                                <div class="reaction-option" onclick="selectReaction('like', 'reactionContainer1')">👍</div>
+                                <div class="reaction-option" onclick="selectReaction('love', 'reactionContainer1')">❤️</div>
+                                <div class="reaction-option" onclick="selectReaction('haha', 'reactionContainer1')">😄</div>
+                            </div>
+                        </div>
+                        <span id="totalReactions1">0 réactions</span>
+                    </div>
+                    <div class="comments-count">
+                        <div class="comment-icon-container">
+                            <div class="comment-icon" onclick="toggleComments('commentsSection1')">💬</div>
+                        </div>
+                        <span id="commentCount1">2 commentaires</span> · <span>0 partages</span>
+                    </div>
+                </div>
+                
+                <div class="comments-section" id="commentsSection1">
+                    <!-- Commentaires existants -->
+                    <div class="comment">
+                        <div class="comment-avatar">J</div>
+                        <div class="comment-content">
+                            <div class="comment-author">Jean Dupont</div>
+                            <div class="comment-text">Super journée en effet ! ☀️</div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment">
+                        <div class="comment-avatar">S</div>
+                        <div class="comment-content">
+                            <div class="comment-author">Sophie Martin</div>
+                            <div class="comment-text">Magnifique photo ! 😍</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Zone de saisie de nouveau commentaire -->
+                    <div class="comment-input-area">
+                        <div class="comment-avatar">V</div>
+                        <input type="text" class="comment-input" id="newComment1" placeholder="Écrivez un commentaire...">
+                        <button class="send-button" onclick="addComment('commentsSection1', 'newComment1', 'commentCount1')">Envoyer</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-avatar">P</div>
+                    <div class="post-info">
+                        <h3>Pierre Martin</h3>
+                        <div class="post-time">Il y a 4 heures</div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <div class="post-text">Nature ! </div>
+                    <div class="photo-upload-area" onclick="uploadPostPhoto(this)">
+                        <img style="max-width:100%;" src="../../assets/image/Screenshot_20240129-112225_Lite.jpg" alt="Un garçon chante joyeusement à son chat assis devant lui">
+                    </div>
+                </div>
+                <div class="post-stats">
+                    <div class="likes-count">
+                        <div class="reaction-icons" id="reactionContainer2">
+                            <div class="reaction-icon like-icon" 
+                                 onclick="addReaction('like', 'reactionContainer2')" 
+                                 oncontextmenu="showReactions(event, this)">👍</div>
+                            <div class="counter like-counter" id="likeCounter2">0</div>
+                            
+                            <div class="reaction-icon love-icon" 
+                                 onclick="addReaction('love', 'reactionContainer2')" 
+                                 style="display: none;">❤️</div>
+                            <div class="counter love-counter" id="loveCounter2">0</div>
+                            
+                            <div class="reaction-icon haha-icon" 
+                                 onclick="addReaction('haha', 'reactionContainer2')" 
+                                 style="display: none;">😄</div>
+                            <div class="counter haha-counter" id="hahaCounter2">0</div>
+                            
+                            <div class="reactions-menu" id="reactionsMenu2">
+                                <div class="reaction-option" onclick="selectReaction('like', 'reactionContainer2')">👍</div>
+                                <div class="reaction-option" onclick="selectReaction('love', 'reactionContainer2')">❤️</div>
+                                <div class="reaction-option" onclick="selectReaction('haha', 'reactionContainer2')">😄</div>
+                            </div>
+                        </div>
+                        <span id="totalReactions2">0 réactions</span>
+                    </div>
+                    <div class="comments-count">
+                        <div class="comment-icon-container">
+                            <div class="comment-icon" onclick="toggleComments('commentsSection2')">💬</div>
+                        </div>
+                        <span id="commentCount2">1 commentaire</span> · <span>0 partages</span>
+                    </div>
+                </div>
+                
+                <div class="comments-section" id="commentsSection2">
+                    <!-- Commentaires existants -->
+                    <div class="comment">
+                        <div class="comment-avatar">M</div>
+                        <div class="comment-content">
+                            <div class="comment-author">Marie Dubois</div>
+                            <div class="comment-text">Magnifique paysage ! Où est-ce ?</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Zone de saisie de nouveau commentaire -->
+                    <div class="comment-input-area">
+                        <div class="comment-avatar">V</div>
+                        <input type="text" class="comment-input" id="newComment2" placeholder="Écrivez un commentaire...">
+                        <button class="send-button" onclick="addComment('commentsSection2', 'newComment2', 'commentCount2')">Envoyer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Système de réactions
+        function addReaction(type, containerId) {
+            const container = document.getElementById(containerId);
+            const counter = container.querySelector(`.${type}-counter`);
+            const icon = container.querySelector(`.${type}-icon`);
+            const totalReactions = container.parentElement.querySelector('#totalReactions' + containerId.slice(-1));
+            
+            let count = parseInt(counter.textContent) || 0;
+            count++;
+            counter.textContent = count;
+            
+            if (count === 1) {
+                icon.style.display = 'flex';
+                counter.classList.add('show');
+            }
+            
+            updateTotalReactions(containerId);
+        }
+        
+        function updateTotalReactions(containerId) {
+            const container = document.getElementById(containerId);
+            const counters = container.querySelectorAll('.counter.show');
+            let total = 0;
+            
+            counters.forEach(counter => {
+                total += parseInt(counter.textContent) || 0;
+            });
+            
+            const totalReactions = container.parentElement.querySelector('#totalReactions' + containerId.slice(-1));
+            totalReactions.textContent = `${total} réaction${total > 1 ? 's' : ''}`;
+        }
+        
+        // Afficher le menu des réactions au clic droit
+        function showReactions(event, element) {
+            event.preventDefault();
+            const container = element.closest('.reaction-icons');
+            const menu = container.querySelector('.reactions-menu');
+            menu.classList.add('show');
+            
+            // Positionner le menu
+            const rect = element.getBoundingClientRect();
+            menu.style.left = `${rect.left - 40}px`;
+            menu.style.bottom = `${window.innerHeight - rect.top + 10}px`;
+            
+            // Cacher le menu après un moment
+            setTimeout(() => {
+                document.addEventListener('click', hideMenu);
+            }, 100);
+            
+            function hideMenu() {
+                menu.classList.remove('show');
+                document.removeEventListener('click', hideMenu);
+            }
+        }
+        
+        // Sélectionner une réaction depuis le menu
+        function selectReaction(type, containerId) {
+            addReaction(type, containerId);
+            document.getElementById('reactionsMenu' + containerId.slice(-1)).classList.remove('show');
+        }
+        
+        // Afficher/masquer les commentaires
+        function toggleComments(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('show');
+        }
+        
+        // Ajouter un nouveau commentaire
+        function addComment(sectionId, inputId, counterId) {
+            const input = typeof inputId === 'string' ? document.getElementById(inputId) : inputId;
+            const text = input.value.trim();
+            
+            if (text) {
+                const section = document.getElementById(sectionId);
+                const commentsContainer = section.querySelector('.comment-input-area').parentNode;
+                
+                // Créer le nouveau commentaire
+                const newComment = document.createElement('div');
+                newComment.className = 'comment';
+                newComment.innerHTML = `
+                    <div class="comment-avatar">V</div>
+                    <div class="comment-content">
+                        <div class="comment-author">Vous</div>
+                        <div class="comment-text">${text}</div>
+                    </div>
+                `;
+                
+                // Insérer avant la zone de saisie
+                commentsContainer.insertBefore(newComment, section.querySelector('.comment-input-area'));
+                
+                // Mettre à jour le compteur
+                updateCommentCount(counterId);
+                
+                // Vider le champ de saisie
+                input.value = '';
+            }
+        }
+        
+        // Mettre à jour le compteur de commentaires
+        function updateCommentCount(counterId) {
+            const counter = document.getElementById(counterId);
+            const section = counter.closest('.post-stats').nextElementSibling;
+            const count = section.querySelectorAll('.comment').length - 1; // -1 pour la zone de saisie
+            counter.textContent = `${count} commentaire${count !== 1 ? 's' : ''}`;
+        }
+        
+        // Permettre d'envoyer avec la touche Entrée
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.classList.contains('comment-input')) {
+                const input = e.target;
+                const sectionId = input.closest('.comments-section').id;
+                const counterId = 'commentCount' + sectionId.slice(-1);
+                addComment(sectionId, input, counterId);
+            }
+        });
+
+        // Fonction pour basculer le menu déroulant du profil
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Fermer le menu déroulant si on clique ailleurs
+        window.onclick = function(event) {
+            if (!event.target.matches('.header-icon.profile')) {
+                const dropdowns = document.getElementsByClassName("profile-dropdown");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    const openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
